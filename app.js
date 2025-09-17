@@ -11,11 +11,16 @@ app.use(bodyParser.json());
 const moodRoutes = require('./routes/moods');
 const userRoutes = require('./routes/users');
 const quoteRoutes = require('./routes/quotes');
+const conversationRoutes = require('./routes/conversation');
+
 // Use routes
 app.use('/', userRoutes); // signup, login, profile
 app.use('/api/moods', moodRoutes);
 app.use('/api/quotes', quoteRoutes);
-const PORT = 3001;
+app.use('/api/chat', conversationRoutes);
+
+
+const PORT = process.env.PORT;
 app.listen(PORT, async () => {
     try {
         await sequelize.authenticate();
