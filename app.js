@@ -10,11 +10,11 @@ app.use(bodyParser.json());
 // Import routes
 const moodRoutes = require('./routes/moods');
 const userRoutes = require('./routes/users');
-
+const quoteRoutes = require('./routes/quotes');
 // Use routes
-app.use('/api/moods', moodRoutes);
 app.use('/', userRoutes); // signup, login, profile
-
+app.use('/api/moods', moodRoutes);
+app.use('/api/quotes', quoteRoutes);
 const PORT = 3001;
 app.listen(PORT, async () => {
     try {

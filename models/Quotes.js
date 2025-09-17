@@ -10,6 +10,7 @@ const Quotes = sequelize.define('Quotes', {
     content: {
         type: DataTypes.TEXT,
         allowNull: false,
+        unique: true,
     },
     author: {
         type: DataTypes.STRING(100),
@@ -18,6 +19,7 @@ const Quotes = sequelize.define('Quotes', {
     dateFetched: {
         type: DataTypes.DATE,
         defaultValue: DataTypes.NOW,
+        unique: true
     }
 }, {
     tableName: 'quotes',
