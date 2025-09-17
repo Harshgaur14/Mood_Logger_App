@@ -95,8 +95,8 @@ const PORT = 3001;
 app.listen(PORT, async () => {
     try {
         await sequelize.authenticate();
-        console.log(`✅ MoodLogger app running at http://localhost:${PORT}`);
+        console.log(`MoodLogger app running at http://localhost:${PORT}`);
     } catch (err) {
-        console.error('❌ Database connection failed:', err);
+        console.error('Database connection failed:', err);
     }
 });
