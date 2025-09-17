@@ -1,10 +1,18 @@
 // app.js
 const express = require('express');
+const pool = require('./db');
+
 const app = express();
 const port = 3000;
 
-app.get('/', (req, res) => {
-    res.send('Welcome to MoodLogger!');
+app.get('/', async (req, res) => {
+    try {
+        const result = await pool.query('SELECT NOW()');
+        res.send(`Welcome to MoodLogger! Database time: ${result.rows[0].now}`);
+    } catch (err) {
+        console.error(err);
+        res.status(500).send('Database connection error');
+    }
 });
 
 app.listen(port, () => {
