@@ -8,7 +8,7 @@ function authenticateToken(req, res, next) {
     const token = authHeader && authHeader.split(' ')[1]; // Expecting: Bearer <token>
 
     if (!token) {
-        return res.status(401).json({ message: 'Access token missing' });
+        return res.status(401).json({ message: 'Authentication require' });
     }
 
     jwt.verify(token, JWT_SECRET, (err, user) => {
