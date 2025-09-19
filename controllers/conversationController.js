@@ -86,4 +86,20 @@ User: ${message}
   }
 };
 
-module.exports = { chatWithAI };
+const getConversations = async (req, res) => {
+  try {
+    const userId = req.user.userId;
+
+    const conversations = await Conversations.findAll({
+      where: { userId },
+      order: [["timestamp", "DESC"]], // latest first
+    });
+
+    res.json({ conversations });
+  } catch (err) {
+    console.error("Get Conversations Error:", err.message);
+    res.status(500).json({ error: "Failed to fetch conversations" });
+  }
+};
+
+module.exports = { chatWithAI, getConversations };
