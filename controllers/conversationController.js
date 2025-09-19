@@ -17,7 +17,7 @@ const chatWithAI = async (req, res) => {
       return res.status(400).json({ error: "Message is required" });
     }
 
-    // 1️⃣ Daily limit check
+    //  Daily limit check
     const today = new Date();
     const startOfDay = new Date(today.setHours(0, 0, 0, 0));
     const endOfDay = new Date(today.setHours(23, 59, 59, 999));
@@ -35,7 +35,7 @@ const chatWithAI = async (req, res) => {
         .json({ error: "Daily limit of 5 chatbot calls reached" });
     }
 
-    // 2️⃣ Build motivational prompt
+    //  Build motivational prompt
   const prompt = `
 You are a motivational mental health assistant.
 Your only purpose is to encourage, uplift, and support the user's mental well-being.
@@ -46,7 +46,7 @@ Your only purpose is to encourage, uplift, and support the user's mental well-be
 User: ${message}
 `;
 
-    // 3️⃣ Call OpenAI API
+    //  Call OpenAI API
     const response = await fetch(OPENAI_URL, {
       method: "POST",
       headers: {
@@ -72,7 +72,7 @@ User: ${message}
       data.choices?.[0]?.message?.content?.trim() ||
       "Stay strong, keep believing in yourself!";
 
-    // 4️⃣ Save conversation
+    //  Save conversation
     await Conversations.create({
       userId,
       message,
