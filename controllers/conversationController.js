@@ -54,7 +54,7 @@ User: ${message}
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        model: "gpt-4o-mini", // ✅ cost-efficient model
+        model: "gpt-4o-mini", //  cost-efficient model
         messages: [
           { role: "system", content: systemPrompt },
           { role: "user", content: message },
