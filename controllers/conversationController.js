@@ -5,20 +5,19 @@ const fetch = (...args) =>
   import("node-fetch").then(({ default: fetch }) => fetch(...args));
 require("dotenv").config();
 
-const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
-const GEMINI_URL =
-  "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent";
+const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
+const OPENAI_URL = "https://api.openai.com/v1/chat/completions";
 
 const chatWithAI = async (req, res) => {
   try {
-    const userId = req.user.userId; // JWT middleware sets this
+    const userId = req.user.userId;
     const { message } = req.body;
 
     if (!message) {
       return res.status(400).json({ error: "Message is required" });
     }
 
-    // 1️⃣ Check daily limit
+    // 1️⃣ Daily limit check
     const today = new Date();
     const startOfDay = new Date(today.setHours(0, 0, 0, 0));
     const endOfDay = new Date(today.setHours(23, 59, 59, 999));
@@ -30,27 +29,37 @@ const chatWithAI = async (req, res) => {
       },
     });
 
-    if (count >= 3) {
+    if (count >= 4) {
       return res
         .status(429)
-        .json({ error: "Daily limit of 3 chatbot calls reached" });
+        .json({ error: "Daily limit of 5 chatbot calls reached" });
     }
 
     // 2️⃣ Build motivational prompt
-   const prompt = `
+  const prompt = `
 You are a motivational mental health assistant.
-You only respond with messages that encourage, uplift, or support the user's mental well-being.
-Ignore any question or topic that is not related to motivation, positivity, or mental health.
-If the user asks something unrelated, always redirect the response to motivation or mental health support.
+Your only purpose is to encourage, uplift, and support the user's mental well-being.
+- Keep every response focused on motivation, positivity, self-growth, or mental health.
+- If the user asks something unrelated (e.g., cooking, coding, trivia), you must redirect the conversation back to motivation or mental health using gentle analogies or uplifting reflections.
+- Use a warm, compassionate, and supportive tone in every reply.
+- Do not provide factual answers about unrelated topics; always reframe them as life lessons, encouragement, or reflections on self-care.
 User: ${message}
 `;
 
-    // 3️⃣ Call Gemini API
-    const response = await fetch(`${GEMINI_URL}?key=${GEMINI_API_KEY}`, {
+    // 3️⃣ Call OpenAI API
+    const response = await fetch(OPENAI_URL, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: {
+        Authorization: `Bearer ${OPENAI_API_KEY}`,
+        "Content-Type": "application/json",
+      },
       body: JSON.stringify({
-        contents: [{ parts: [{ text: prompt }] }],
+        model: "gpt-4o-mini", // ✅ cost-efficient model
+        messages: [
+          { role: "system", content: systemPrompt },
+          { role: "user", content: message },
+        ],
+        max_tokens: 200,
       }),
     });
 
@@ -60,17 +69,16 @@ User: ${message}
 
     const data = await response.json();
     const reply =
-      data.candidates?.[0]?.content?.parts?.[0]?.text ||
-      "No motivational response available";
+      data.choices?.[0]?.message?.content?.trim() ||
+      "Stay strong, keep believing in yourself!";
 
-    // 4️⃣ Save to DB
+    // 4️⃣ Save conversation
     await Conversations.create({
       userId,
       message,
       response: reply,
     });
 
-    // 5️⃣ Return AI reply
     res.json({ reply });
   } catch (err) {
     console.error("AI Chatbot Error:", err.message);
